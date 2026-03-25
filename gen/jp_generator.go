@@ -24,14 +24,11 @@ var filename = flag.String("output", "nholidays/jp/schedule.go", "output file na
 func main() {
 	f, err := os.Open("nholidays/jp/national_holidays.csv")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	r := csv.NewReader(f)
 
-	var (
-		h      []*Holiday
-		isSkip bool
-	)
+	var h []*Holiday
 
 	for i := 0; ; i++ {
 		record, err := r.Read()
@@ -39,33 +36,19 @@ func main() {
 			break
 		}
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		if i == 0 {
 			continue
 		}
 
-		var holiday Holiday
-		for i, v := range record {
-			switch i {
-			case 0:
-				t, err := time.Parse("2006/1/2", v)
-				if err != nil {
-					panic(err)
-				}
-				tmp := t.Format("2006-01-02")
-				if tmp >= "2000-01-01" {
-					holiday.Date = t.Format("2006-01-02")
-					isSkip = false
-				} else {
-					isSkip = true
-				}
-			case 1:
-				if !isSkip {
-					holiday.Name = v
-					h = append(h, &holiday)
-				}
-			}
+		t, err := time.Parse("2006/1/2", record[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		date := t.Format("2006-01-02")
+		if date >= "2000-01-01" {
+			h = append(h, &Holiday{Date: date, Name: record[1]})
 		}
 	}
 

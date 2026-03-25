@@ -51,11 +51,6 @@ func (g *Goholiday) SetUniqueHolidays(ts []time.Time) {
 	}
 }
 
-func (g *Goholiday) isUniqueHoliday(t time.Time) bool {
-	_, exist := g.uniqueHolidays[t.Format(dateFormat)]
-	return exist
-}
-
 func (g *Goholiday) IsBusinessDay(t time.Time) bool {
 	return !g.IsHoliday(t)
 }
