@@ -27,7 +27,17 @@ func (g *Goholiday) IsNationalHoliday(t time.Time) bool {
 }
 
 func (g *Goholiday) IsHoliday(t time.Time) bool {
-	return g.isWeekdayHoliday(t) || g.IsNationalHoliday(t) || g.isUniqueHoliday(t)
+	if g.isWeekdayHoliday(t) {
+		return true
+	}
+	dateKey := t.Format(dateFormat)
+	if _, exist := g.schedule.GetNationalHolidays()[dateKey]; exist {
+		return true
+	}
+	if _, exist := g.uniqueHolidays[dateKey]; exist {
+		return true
+	}
+	return false
 }
 
 func (g *Goholiday) isWeekdayHoliday(t time.Time) bool {
@@ -59,9 +69,8 @@ func (g *Goholiday) BusinessDaysAfter(t time.Time, bds int) time.Time {
 }
 
 func (g *Goholiday) travelBusinessDays(t time.Time, bds int, course int) time.Time {
-	duration := time.Hour * 24 * time.Duration(course)
 	for tbds := 0; tbds != bds; {
-		if t = t.Add(duration); !g.IsHoliday(t) {
+		if t = t.AddDate(0, 0, course); !g.IsHoliday(t) {
 			tbds++
 		}
 	}
